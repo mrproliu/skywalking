@@ -2609,76 +2609,57 @@ public class ThreadAnalyzerTestCase {
 //            beforeMethod = methodName;
 //        }
 
-        // deserialize snapshot list
-        InputStream expectedInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("thread-snapshot.yml");
-        System.out.println("start reading file");
-        long startTime = System.currentTimeMillis();
-        final ProfileTaskSegmentSnapshotDataHolder dataHolder = new Yaml().loadAs(expectedInputStream, ProfileTaskSegmentSnapshotDataHolder.class);
-        System.out.print("reading file finish:");
-        System.out.println(System.currentTimeMillis() - startTime);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    methodA();
+                } catch (InterruptedException e) {
+                }
+            }
+        });
 
-        startTime = System.currentTimeMillis();
-        System.out.println("starting transform");
-        List<ProfileTaskSegmentSnapshotRecord> records = dataHolder.transform();
-        System.out.print("transform finished: ");
-        System.out.println(System.currentTimeMillis() - startTime);
+        thread.start();
 
-        // analyze records
-        startTime = System.currentTimeMillis();
-        ProfileAnalyze analyze = new ThreadStackAnalyzer().analyze(records);
-        System.out.println(System.currentTimeMillis() - startTime);
-        System.out.println(1);
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    method122698689102();
-//                } catch (InterruptedException e) {
-//                }
-//            }
-//        });
-//
-//        thread.start();
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                try (
-//                    FileOutputStream fileOutputStream = new FileOutputStream(new File("/Users/liuhan/Documents/idea_workspace/lagou_new_workspace/skywalking-liuhan/skywalking/oap-server/server-core/src/test/resources/thread-snapshot.yml"));
-//                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-//                ) {
-//                    bufferedOutputStream.write("list:\n".getBytes());
-//                    int seq = 0;
-//                    long currentLoopStartTime = -1;
-//                    while (thread.isAlive()) {
-//                        currentLoopStartTime = System.currentTimeMillis();
-//                        StackTraceElement[] stack = thread.getStackTrace();
-//
-//                        StringBuilder stringBuilder = new StringBuilder();
-//                        stringBuilder.append("    - dumpTime: ").append(System.currentTimeMillis()).append("\n");
-//                        stringBuilder.append("      sequence: ").append(seq++).append("\n");
-//                        stringBuilder.append("      stackList:").append("\n");
-//                        for (int i = stack.length - 1; i >= 0; i--) {
-//                            stringBuilder.append("        - ").append(stack[i].getClassName()).append(".").append(stack[i].getMethodName()).append(":").append(stack[i].getLineNumber()).append("\n");
-//                        }
-//
-//                        long needToSleep = (currentLoopStartTime + 10) - System.currentTimeMillis();
-//                        needToSleep = needToSleep > 0 ? needToSleep : 10;
-//                        try {
-//                            Thread.sleep(needToSleep);
-//                        } catch (InterruptedException e) {
-//                        }
-//                        bufferedOutputStream.write(stringBuilder.toString().getBytes());
-//                        System.out.println(seq);
-//                    }
-//
-//                    fileOutputStream.flush();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//        }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try (
+                    FileOutputStream fileOutputStream = new FileOutputStream(new File("/Users/liuhan/Documents/idea_workspace/lagou_new_workspace/skywalking-liuhan/skywalking/oap-server/server-core/src/test/resources/thread-snapshot.yml"));
+                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+                ) {
+                    bufferedOutputStream.write("list:\n".getBytes());
+                    int seq = 0;
+                    long currentLoopStartTime = -1;
+                    while (thread.isAlive()) {
+                        currentLoopStartTime = System.currentTimeMillis();
+                        StackTraceElement[] stack = thread.getStackTrace();
+
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("    - dumpTime: ").append(System.currentTimeMillis()).append("\n");
+                        stringBuilder.append("      sequence: ").append(seq++).append("\n");
+                        stringBuilder.append("      stackList:").append("\n");
+                        for (int i = stack.length - 1; i >= 0; i--) {
+                            stringBuilder.append("        - ").append(stack[i].getClassName()).append(".").append(stack[i].getMethodName()).append(":").append(stack[i].getLineNumber()).append("\n");
+                        }
+
+                        long needToSleep = (currentLoopStartTime + 10) - System.currentTimeMillis();
+                        needToSleep = needToSleep > 0 ? needToSleep : 10;
+                        try {
+                            Thread.sleep(needToSleep);
+                        } catch (InterruptedException e) {
+                        }
+                        bufferedOutputStream.write(stringBuilder.toString().getBytes());
+                        System.out.println(seq);
+                    }
+
+                    fileOutputStream.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
     }
 }
