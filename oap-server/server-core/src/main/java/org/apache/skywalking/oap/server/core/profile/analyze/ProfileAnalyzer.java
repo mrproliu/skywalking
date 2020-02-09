@@ -18,10 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,16 +36,50 @@ import java.util.stream.Collectors;
  *
  * See: https://github.com/apache/skywalking/blob/421ba88dbfba48cdc5845547381aa4763775b4b1/docs/en/guides/backend-profile.md#thread-analyst
  */
-public class ProfileAnalyzer {
+public class ProfileAnalyzer implements Service {
 
     private static final ProfileAnalyzeCollector ANALYZE_COLLECTOR = new ProfileAnalyzeCollector();
+
+    private static final int THREAD_SNAPSHOT_ANALYZE_BATCH_SIZE = 100;
+
+    private final ModuleManager moduleManager;
+
+    private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
+
+    public ProfileAnalyzer(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    /**
+     * search snapshots and analyze
+     * @param segmentId
+     * @param start
+     * @param end
+     * @return
+     */
+    public ProfileAnalyzation analyze(String segmentId, long start, long end) throws IOException {
+        LinkedList<ProfileStack> snapshots = new LinkedList<>();
+
+        // paging by min sequence
+        int minSequence = 0;
+        List<ProfileThreadSnapshotRecord> record = null;
+        do {
+            record = getProfileThreadSnapshotQueryDAO().queryRecordsWithPaging(segmentId, start, end, minSequence, THREAD_SNAPSHOT_ANALYZE_BATCH_SIZE);
+            if (CollectionUtils.isNotEmpty(record)) {
+                snapshots.addAll(record.stream().map(ProfileStack::deserialize).collect(Collectors.toList()));
+                minSequence = record.get(record.size() - 1).getSequence() + 1;
+            }
+        } while (CollectionUtils.isNotEmpty(record));
+
+        return analyze(snapshots);
+    }
 
     /**
      * Analyze records
      * @param stacks
      * @return
      */
-    public static ProfileAnalyzation analyze(List<ProfileStack> stacks) {
+    protected ProfileAnalyzation analyze(List<ProfileStack> stacks) {
         if (CollectionUtils.isEmpty(stacks)) {
             return null;
         }
@@ -55,4 +95,10 @@ public class ProfileAnalyzer {
         return analyzer;
     }
 
+    private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
+        if (profileThreadSnapshotQueryDAO == null) {
+            profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileThreadSnapshotQueryDAO.class);
+        }
+        return profileThreadSnapshotQueryDAO;
+    }
 }

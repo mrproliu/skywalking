@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.core.profile.bean;
 
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStackAnalyze;
 
 import java.util.List;
 
