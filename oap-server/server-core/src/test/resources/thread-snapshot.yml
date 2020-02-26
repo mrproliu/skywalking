@@ -231,7 +231,7 @@ list:
   # case 8(multiple time ranges)
   - data:
       limit: 10
-      timeRanges: 0-2,4-5
+      timeRanges: 0-2,4-5,7-8,10-11
       snapshots:
         - A
         - A
@@ -240,7 +240,13 @@ list:
         - A
         - A
         - A-D
+        - A
+        - A
+        - A-B
+        - A
+        - A
+        - A
     expected:
       - code: A
-        count: 5
-        duration: 30:30
+        count: 9
+        duration: 50:50
