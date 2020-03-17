@@ -61,6 +61,7 @@ public enum ServiceManager {
         load(allServices);
         for (final BootService bootService : allServices) {
             Class<? extends BootService> bootServiceClass = bootService.getClass();
+            logger.warn("[profile] Loading boot service:{}", bootServiceClass.getSimpleName());
             boolean isDefaultImplementor = bootServiceClass.isAnnotationPresent(DefaultImplementor.class);
             if (isDefaultImplementor) {
                 if (!bootedServices.containsKey(bootServiceClass)) {
