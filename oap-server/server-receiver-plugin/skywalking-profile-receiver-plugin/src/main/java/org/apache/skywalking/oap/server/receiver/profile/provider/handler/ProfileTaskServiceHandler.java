@@ -59,6 +59,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     public void getProfileTaskCommands(ProfileTaskCommandQuery request, StreamObserver<Commands> responseObserver) {
         // query profile task list by service id
         final List<ProfileTask> profileTaskList = profileTaskCache.getProfileTaskList(request.getServiceId());
+        LOGGER.info("Querying profile task commnad data: serviceId:{}, profileTaskList:{}", request.getServiceId(), profileTaskList);
         if (CollectionUtils.isEmpty(profileTaskList)) {
             responseObserver.onNext(Commands.newBuilder().build());
             responseObserver.onCompleted();
@@ -157,6 +158,8 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
         logRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration())));
 
         RecordStreamProcessor.getInstance().in(logRecord);
+
+        LOGGER.info("Adding log to instanceId:{}, operationType:{}, taskId:{}", instanceId, operationType, task);
     }
 
 }

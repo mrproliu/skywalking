@@ -148,8 +148,10 @@ public enum CacheUpdateTimer {
                                                               .provider()
                                                               .getService(ProfileTaskCache.class);
         try {
-            final List<ProfileTask> taskList = profileTaskQueryDAO.getTaskList(null, null, profileTaskCache.getCacheStartTimeBucket(), profileTaskCache
-                .getCacheEndTimeBucket(), null);
+            final long cacheStartTimeBucket = profileTaskCache.getCacheStartTimeBucket();
+            final long cacheEndTimeBucket = profileTaskCache
+                    .getCacheEndTimeBucket();
+            final List<ProfileTask> taskList = profileTaskQueryDAO.getTaskList(null, null, cacheStartTimeBucket, cacheEndTimeBucket, null);
 
             taskList.stream().collect(Collectors.groupingBy(t -> t.getServiceId())).entrySet().stream().forEach(e -> {
                 final Integer serviceId = e.getKey();
@@ -157,6 +159,8 @@ public enum CacheUpdateTimer {
 
                 profileTaskCache.saveTaskList(serviceId, profileTasks);
             });
+
+            logger.info("Update query profile task list in time range:{} -> {}, taskList:{}", cacheStartTimeBucket, cacheEndTimeBucket, taskList);
         } catch (IOException e) {
             logger.warn("Unable to update profile task cache", e);
         }
