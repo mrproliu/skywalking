@@ -78,6 +78,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     @Override
     public void run() {
+        logger.warn("[profile] Starting check profiling tasks, serviceId:{}, instanceId:{}, connectStatus:{}",
+                RemoteDownstreamConfig.Agent.SERVICE_ID, RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID, status);
         if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
             && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()) {
             if (status == GRPCChannelStatus.CONNECTED) {
@@ -94,9 +96,11 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
                     Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
                                                                .getProfileTaskCommands(builder.build());
+                    logger.warn("[profile] Receive profile commands:{}", commands);
 
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 } catch (Throwable t) {
+                    logger.warn(t, "[profile] Getting profile task error");
                     if (!(t instanceof StatusRuntimeException)) {
                         logger.error(t, "Query profile task from backend fail.");
                         return;
@@ -126,6 +130,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     @Override
     public void boot() {
+        logger.warn("[profile] Prepare starting profile, active:{}", Config.Profile.ACTIVE);
         if (Config.Profile.ACTIVE) {
             // query task list
             getTaskListFuture = Executors.newSingleThreadScheduledExecutor(
@@ -145,6 +150,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                     t -> logger.error("Profile segment snapshot upload failure.", t)
                 ), 0, 500, TimeUnit.MILLISECONDS
             );
+
+            logger.warn("[profile] Adding profile task success!");
         }
     }
 
