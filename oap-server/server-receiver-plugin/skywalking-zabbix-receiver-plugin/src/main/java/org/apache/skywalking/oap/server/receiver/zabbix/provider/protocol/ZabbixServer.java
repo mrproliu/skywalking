@@ -34,8 +34,8 @@ import org.apache.skywalking.oap.server.receiver.zabbix.provider.ZabbixModuleCon
 
 @Slf4j
 public class ZabbixServer {
-    private final ZabbixModuleConfig config;
-    private final ZabbixMetrics metrics;
+    protected final ZabbixModuleConfig config;
+    protected final ZabbixMetrics metrics;
 
     private NioEventLoopGroup bossGroup;
     private NioEventLoopGroup workerGroup;
