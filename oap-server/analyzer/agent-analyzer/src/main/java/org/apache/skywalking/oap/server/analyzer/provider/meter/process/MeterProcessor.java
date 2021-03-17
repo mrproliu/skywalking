@@ -77,6 +77,9 @@ public class MeterProcessor {
     }
 
     public void read(MeterData data) {
+        if (log.isDebugEnabled()) {
+            log.debug("Received meter msg {}", data);
+        }
         // Parse and save meter
         switch (data.getMetricCase()) {
             case SINGLEVALUE:
@@ -122,6 +125,8 @@ public class MeterProcessor {
     public void process() {
         // Check agent information
         if (StringUtils.isEmpty(service) || StringUtil.isEmpty(serviceInstance) || timestamp == null) {
+            log.warn("Meter message is not valid, service: {}, serviceInstance: {}, timestamp",
+                     service, serviceInstance, timestamp);
             return;
         }
 
