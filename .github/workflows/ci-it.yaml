@@ -27,7 +27,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Check License Header
-        uses: apache/skywalking-infra-e2e@c078955fe156459a82361f63be49af01ef89aca6
+      - name: E2E Tesing
+        uses: apache/skywalking-infra-e2e@ca9512838da5d66e6c4da9da6d95eace0457191d
         with:
           e2e-file: e2e.yaml
