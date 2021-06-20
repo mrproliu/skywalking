@@ -32,9 +32,9 @@ trigger:
   method: GET
 
 verify:
-  - actual: ../../test/verify/1.actual.yaml
-    expected: ../../test/verify/1.expected.yaml
-  - actual: ../../test/verify/2.actual.yaml
-    expected: ../../test/verify/2.expected.yaml
+  - actual: verify/1.actual.yaml
+    expected: verify/1.expected.yaml
+  - actual: verify/2.actual.yaml
+    expected: verify/2.expected.yaml
   - query: swctl --display yaml --base-url=http://127.0.0.1:${oap_12800}/graphql service ls
-    expected: ../../test/verify/3.expected.yaml
+    expected: verify/3.expected.yaml
