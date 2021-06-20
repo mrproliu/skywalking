@@ -28,6 +28,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: E2E Tesing
-        uses: mrproliu/skywalking-infra-e2e@a320b5378ee40b3d6a5a95573d2ca10dbd235dc1
+        uses: mrproliu/skywalking-infra-e2e@f65f2f98f49b947f95591d3e11f422242618cfdb
         with:
           e2e-file: e2e.yaml
