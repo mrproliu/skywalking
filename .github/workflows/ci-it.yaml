@@ -28,6 +28,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check License Header
-        uses: mrproliu/skywalking-infra-e2e@c63d9357a8c7876dbe39a55643e579434564a4d1
+        uses: apache/skywalking-infra-e2e@c078955fe156459a82361f63be49af01ef89aca6
         with:
           e2e-file: e2e.yaml
