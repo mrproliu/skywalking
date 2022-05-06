@@ -42,6 +42,7 @@
 * Add TermsAggregation properties collect_mode and execution_hint.
 * Add "execution_hint": "map", "collect_mode": "breadth_first" for aggregation and topology query to improve 5-10x performance.
 * Clean up scroll contexts after used.
+* Add Envoy internal cost metrics.
 
 #### UI
 
