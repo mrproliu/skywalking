@@ -105,7 +105,6 @@ jobs:
     if: |
       always()
     name: Build dist tar
-    needs: [ sanity-check, changes ]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -133,7 +132,7 @@ jobs:
     if: |
       always()
     name: Docker images
-    needs: [ dist-tar, changes ]
+    needs: [ dist-tar ]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
