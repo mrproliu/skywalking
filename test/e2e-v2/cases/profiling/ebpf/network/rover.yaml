@@ -59,7 +59,7 @@ spec:
       containers:
         - name: skywalking-rover
           # SkyWalking Rover image path
-          image: mrproliu/skywalking-rover-test:latest
+          image: mrproliu/skywalking-rover-test:test1
           imagePullPolicy: Always
           securityContext:
             capabilities:
