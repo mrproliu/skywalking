@@ -223,8 +223,6 @@ jobs:
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
-      - name: keep alive the ssh
-        run: touch /tmp/keepalive
       - name: Setup Debug Session
         uses: csexton/debugger-action@master
       - name: ${{ matrix.test.name }}
