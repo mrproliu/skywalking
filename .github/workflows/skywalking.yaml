@@ -236,6 +236,7 @@ jobs:
           name: logs
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
+
   e2e-test-istio:
     if: |
       always()
