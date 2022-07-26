@@ -59,7 +59,7 @@ spec:
       containers:
         - name: skywalking-rover
           # SkyWalking Rover image path
-          image: mrproliu/skywalking-rover-test:test1
+          image: mrproliu/skywalking-rover-test:test3
           imagePullPolicy: Always
           securityContext:
             capabilities:
@@ -99,5 +99,5 @@ spec:
       volumes:
         - name: host
           hostPath:
-            path: /
+            path: /host
             type: Directory
