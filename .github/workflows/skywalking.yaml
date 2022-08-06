@@ -262,6 +262,9 @@ jobs:
           - name: eBPF Profiling Network
             config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
             env: ISTIO_VERSION=1.13.1
+          - name: eBPF Profiling Network ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/network/es-sharding/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
     steps:
       - uses: actions/checkout@v3
         with:
@@ -283,8 +286,6 @@ jobs:
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
-      - name: Setup Debug Session
-        uses: csexton/debugger-action@master
       - name: ${{ matrix.test.name }}
         uses: apache/skywalking-infra-e2e@main
         with:
