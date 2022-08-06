@@ -87,7 +87,7 @@ setup:
           resource: pod
           for: condition=Ready
     - name: Generate traffic
-      path: traffic-gen.yaml
+      path: ../traffic-gen.yaml
       wait:
         - namespace: default
           resource: pod
