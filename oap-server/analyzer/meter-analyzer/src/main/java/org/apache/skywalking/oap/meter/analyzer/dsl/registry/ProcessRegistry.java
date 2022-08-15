@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl.registry;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.Const;
@@ -31,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 /**
  * The dynamic entity registry for {@link ProcessTraffic}
  */
+@Slf4j
 public class ProcessRegistry {
 
     public static final String LOCAL_VIRTUAL_PROCESS = "UNKNOWN_LOCAL";

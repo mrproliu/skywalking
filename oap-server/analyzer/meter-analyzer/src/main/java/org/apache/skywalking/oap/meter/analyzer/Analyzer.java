@@ -129,6 +129,7 @@ public class Analyzer {
         if (filterExpression != null) {
             input = filterExpression.filter(input);
         }
+        log.warn("prepare for handle: exp: {}, data: {}", expression.toString(), input);
         Result r = expression.run(input);
         if (!r.isSuccess()) {
             return;
@@ -339,6 +340,8 @@ public class Analyzer {
     }
 
     private void processRelationTraffic(MeterEntity entity) {
+        log.warn("generate the process entity: {}-{}, component Id: {}, data: {}",
+            entity.getSourceProcessId(), entity.getDestProcessId(), entity.getComponentId(), entity);
         switch (entity.getDetectPoint()) {
             case SERVER:
                 processRelationServerSide(entity);
