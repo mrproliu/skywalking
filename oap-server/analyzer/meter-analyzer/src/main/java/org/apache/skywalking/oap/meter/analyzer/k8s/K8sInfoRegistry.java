@@ -250,6 +250,18 @@ public class K8sInfoRegistry {
                 }
             }
         });
+
+        log.warn("ip service data:----------------------------");
+        for (Map.Entry<String, String> entry : ipServiceMap.entrySet()) {
+            log.warn("Service IP: {}, name: {}", entry.getKey(), entry.getValue());
+        }
+        log.warn("-------------------------------------------");
+
+        log.warn("pod service data:----------------------------");
+        for (Map.Entry<String, String> entry : podServiceMap.entrySet()) {
+            log.warn("Pod IP: {}, name: {}", entry.getKey(), entry.getValue());
+        }
+        log.warn("-------------------------------------------");
     }
 
     public String findServiceName(String namespace, String podName) {
@@ -257,11 +269,15 @@ public class K8sInfoRegistry {
     }
 
     public String findPodByIP(String ip) {
-        return this.ipPodMap.get(ip);
+        final String s = this.ipPodMap.get(ip);
+        log.warn("find pod by ip: {}, name: {}", ip, s);
+        return s;
     }
 
     public String findServiceByIP(String ip) {
-        return this.ipServiceMap.get(ip);
+        final String name = this.ipServiceMap.get(ip);
+        log.warn("find service by ip: {}, name: {}", ip, name);
+        return name;
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {
