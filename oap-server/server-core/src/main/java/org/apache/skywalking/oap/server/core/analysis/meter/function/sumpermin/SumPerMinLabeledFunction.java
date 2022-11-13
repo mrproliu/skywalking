@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function.sumpermin;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -41,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import java.util.Objects;
 
+@Slf4j
 @MeterFunction(functionName = "sumPerMinLabeled")
 public abstract class SumPerMinLabeledFunction extends Meter implements AcceptableValue<DataTable>, LabeledValueHolder {
 
@@ -78,6 +80,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
         setEntityId(entity.id());
         setServiceId(entity.serviceId());
         this.total.append(value);
+        log.warn("[test]增加数据, entity id: {}, {}", entity.id(), value);
     }
 
     @Override
@@ -89,6 +92,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
     public boolean combine(Metrics metrics) {
         final SumPerMinLabeledFunction sumPerMinLabeledFunction = (SumPerMinLabeledFunction) metrics;
         combine(sumPerMinLabeledFunction.getTotal());
+        log.warn("[test]聚合数据, entity id: {}, 来源数据: {}, 聚合结果: {}", entityId, sumPerMinLabeledFunction.getTotal(), total);
         return true;
     }
 
@@ -100,6 +104,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
                 continue;
             }
             value.put(key, val / getDurationInMinute());
+            log.warn("[test]计算结果, entity id: {}, 结果: key: {}, value: {}", entityId, key, val / getDurationInMinute());
         }
     }
 
@@ -169,6 +174,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
             metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
             metrics.setEntityId((String) converter.get(ENTITY_ID));
+            log.warn("[test]查询数据, entityId: {}, total: {}, value: {}", metrics.getEntityId(), metrics.getTotal(), metrics.getValue());
             return metrics;
         }
 
@@ -179,6 +185,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
             converter.accept(ENTITY_ID, storageData.getEntityId());
+            log.warn("[test]存储数据, entityId: {}, total: {}, value: {}", storageData.getEntityId(), storageData.getTotal(), storageData.getValue());
         }
     }
 }
