@@ -39,5 +39,5 @@ cases:
 
   # check triggered profiling task
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name test-continuous --trigger CONTINUOUS_PROFILING
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING
     expected: expected/trigger-task.yml
