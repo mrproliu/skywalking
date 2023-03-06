@@ -41,3 +41,15 @@ cases:
   - query: |
       swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING
     expected: expected/trigger-task.yml
+  - query: |
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$( \
+        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING|yq e '.[0].taskid' -
+      )
+    expected: expected/profiling-schedule-list.yml
+  - query: |
+      taskid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING|yq e '.[0].taskid' -)
+      scheduleid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
+      start=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
+      end=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
+    expected: expected/profiling-analysis.yml
