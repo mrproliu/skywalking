@@ -26,15 +26,15 @@ cases:
 
   # policy setting
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous set --service-name test-continuous --config test/e2e-v2/cases/profiling/ebpf/continuous/policy.yaml
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous set --service-name sqrt --config test/e2e-v2/cases/profiling/ebpf/continuous/policy.yaml
     expected: expected/policy-set.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous ls --service-name test-continuous
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous ls --service-name sqrt
     expected: expected/query-policy.yml
 
   # check profiling metrics
   - query: |
       swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml metrics linear \
-        --service-name test-continuous --instance-name test-instance --process-name sqrt --name continuous_profiling_process_cpu |yq e 'to_entries' -
+        --service-name sqrt --instance-name test-instance --process-name sqrt --name continuous_profiling_process_cpu |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
 
   # check triggered profiling task

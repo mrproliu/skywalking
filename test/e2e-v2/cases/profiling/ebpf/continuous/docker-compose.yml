@@ -40,6 +40,7 @@ services:
     privileged: true
     pid: host
     environment:
+      ROVER_LOGGER_LEVEL: DEBUG
       ROVER_HOST_MAPPING: /host
       ROVER_BACKEND_ADDR: oap:11800
       ROVER_PROCESS_DISCOVERY_HEARTBEAT_PERIOD: 2s

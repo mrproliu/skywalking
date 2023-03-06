@@ -15,9 +15,9 @@
 
 {{- contains . }}
 - taskid: {{ notEmpty .taskid }}
-  serviceid: {{ b64enc "test-continuous" }}.1
+  serviceid: {{ b64enc "sqrt" }}.1
   servicename: test-continuous
-  serviceinstanceid: {{ b64enc "test-continuous" }}.1_{{ b64enc "test-instance" }}
+  serviceinstanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
   serviceinstancename: test-instance
   processlabels: []
   processid: {{ notEmpty .processid }}
