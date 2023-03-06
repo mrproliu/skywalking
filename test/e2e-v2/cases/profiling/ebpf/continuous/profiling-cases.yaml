@@ -26,7 +26,7 @@ cases:
 
   # policy setting
   - query: |
-      which swctl && swctl --version && swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous set --service-name sqrt --config test/e2e-v2/cases/profiling/ebpf/continuous/policy.yaml
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous set --service-name sqrt --config test/e2e-v2/cases/profiling/ebpf/continuous/policy.yaml
     expected: expected/policy-set.yml
   - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous ls --service-name sqrt
     expected: expected/query-policy.yml
