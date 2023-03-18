@@ -152,9 +152,11 @@ public class JDBCClient implements Client, HealthCheckable {
     public boolean indexExists(final String table,
                                final String index) throws SQLException {
         try (final var connection = getConnection();
-             final var resultSet = connection.getMetaData().getIndexInfo(null, null, table, false, false)) {
+            final var resultSet = connection.getMetaData().getIndexInfo(null, null, table, false, false)) {
             while (resultSet.next()) {
-                if (resultSet.getString("INDEX_NAME").equalsIgnoreCase(index)) {
+                final String index_name = resultSet.getString("INDEX_NAME");
+                log.warn("found index: %s in table: %s, need check index: %s, is exists: %b", index_name, table, index, index_name.equalsIgnoreCase(index));
+                if (index_name.equalsIgnoreCase(index)) {
                     return true;
                 }
             }
