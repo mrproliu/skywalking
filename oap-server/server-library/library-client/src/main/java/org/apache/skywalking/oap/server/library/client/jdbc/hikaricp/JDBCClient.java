@@ -154,9 +154,9 @@ public class JDBCClient implements Client, HealthCheckable {
         try (final var connection = getConnection();
             final var resultSet = connection.getMetaData().getIndexInfo(null, null, table, false, false)) {
             while (resultSet.next()) {
-                final String index_name = resultSet.getString("INDEX_NAME");
-                log.warn("found index: %s in table: %s, need check index: %s, is exists: %b", index_name, table, index, index_name.equalsIgnoreCase(index));
-                if (index_name.equalsIgnoreCase(index)) {
+                final String realIndex = resultSet.getString("INDEX_NAME");
+                log.warn("found index: %s in table: %s, need check index: %s, is exists: %b", realIndex, table, index, realIndex.equalsIgnoreCase(index));
+                if (realIndex.equalsIgnoreCase(index)) {
                     return true;
                 }
             }
