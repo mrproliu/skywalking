@@ -70,11 +70,13 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
+                    log.warn("[test]receive the trace segment sending");
                     segmentParserService.send(segment);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
                 } finally {
+                    log.warn("[test]receive the trace segment sending end");
                     timer.finish();
                 }
             }
@@ -93,6 +95,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
             @Override
             public void onCompleted() {
+                log.warn("[test--------]complate the trace segment sending");
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
             }
