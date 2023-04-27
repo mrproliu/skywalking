@@ -35,27 +35,30 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 @Slf4j
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
 
     private ISegmentParserService segmentParserService;
+    private AtomicLong processedCount = new AtomicLong(0);
 
     public TraceSegmentReportServiceHandler(ModuleManager moduleManager) {
         this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
-                                                 .provider()
-                                                 .getService(ISegmentParserService.class);
+            .provider()
+            .getService(ISegmentParserService.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
-                                                     .provider()
-                                                     .getService(MetricsCreator.class);
+            .provider()
+            .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
             "trace_in_latency", "The process latency of trace data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
         errorCounter = metricsCreator.createCounter("trace_analysis_error_count", "The error number of trace analysis",
-                                                    new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
     }
 
@@ -70,11 +73,13 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
+                    log.warn("[test]receive the trace segment sending");
                     segmentParserService.send(segment);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
                 } finally {
+                    log.warn("[test]receive the trace segment sending end: {}", processedCount.incrementAndGet());
                     timer.finish();
                 }
             }
@@ -93,6 +98,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
             @Override
             public void onCompleted() {
+                log.warn("[test--------]complate the trace segment sending");
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
             }
