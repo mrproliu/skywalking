@@ -35,12 +35,15 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 @Slf4j
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
 
     private ISegmentParserService segmentParserService;
+    private AtomicLong processedCount = new AtomicLong(0);
 
     public TraceSegmentReportServiceHandler(ModuleManager moduleManager) {
         this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
@@ -76,7 +79,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
                 } finally {
-                    log.warn("[test]receive the trace segment sending end");
+                    log.warn("[test]receive the trace segment sending end: {}", processedCount.incrementAndGet());
                     timer.finish();
                 }
             }
