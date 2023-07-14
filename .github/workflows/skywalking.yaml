@@ -182,7 +182,7 @@ jobs:
 
   docker:
     name: Docker images
-    needs: [dist-tar, changes]
+    needs: [dist-tar]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
