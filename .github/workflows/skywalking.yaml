@@ -157,11 +157,7 @@ jobs:
           echo "UI: ${{ steps.filter-ui.outputs.all_changed_and_modified_files }}"
 
   dist-tar:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Build dist tar
-    needs: [sanity-check, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -185,9 +181,6 @@ jobs:
           path: dist
 
   docker:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Docker images
     needs: [dist-tar, changes]
     runs-on: ubuntu-latest
@@ -690,9 +683,6 @@ jobs:
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-istio:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-20.04
@@ -786,13 +776,8 @@ jobs:
     if: always()
     name: Required
     needs:
-      - dependency-license
-      - unit-test
-      - integration-test
-      - slow-integration-test
       - e2e-test
       - e2e-test-istio
-      - e2e-test-java-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
