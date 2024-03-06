@@ -43,7 +43,7 @@
   normal: true
 - id: {{ b64enc "ratings.default" }}.1
   name: ratings.default
-  group:
+  group: ""
   shortname: ratings.default
   layers:
     {{- contains .layers }}
@@ -53,7 +53,7 @@
   normal: true
 - id: {{ b64enc "ratings.default" }}.1
   name: ratings.default
-  group:
+  group: ""
   shortname: ratings.default
   layers:
     {{- contains .layers }}
