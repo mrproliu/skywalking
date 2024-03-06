@@ -17,8 +17,8 @@
 
 setup:
   env: kind
-  file: ../../kind.yaml
-  init-system-environment: ../../../../../script/env
+  file: ../../../kind.yaml
+  init-system-environment: ../../../../../../script/env
   kind:
     import-images:
       - skywalking/ui:latest
