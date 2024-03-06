@@ -63,7 +63,7 @@
   normal: true
 - id: {{ b64enc "istio-egressgateway.istio-system" }}.1
   name: istio-egressgateway.istio-system
-  group:
+  group: ""
   shortname: istio-egressgateway.istio-system
   layers:
     - MESH_DP
