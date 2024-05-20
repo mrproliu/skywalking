@@ -620,6 +620,12 @@ receiver-telegraf:
   default:
     activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
 
+receiver-cilium:
+  selector: ${SW_RECEIVER_CILIUM:default}
+  default:
+    peerHost: 127.0.0.1
+    peerPort: 4244
+
 aws-firehose:
   selector: ${SW_RECEIVER_AWS_FIREHOSE:default}
   default:
