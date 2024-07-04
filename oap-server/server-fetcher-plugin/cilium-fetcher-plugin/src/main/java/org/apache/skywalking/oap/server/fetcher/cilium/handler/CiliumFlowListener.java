@@ -385,6 +385,8 @@ public class CiliumFlowListener implements CiliumNodeUpdateListener {
         service.setServiceName(metadata.getServiceName());
         service.setLayer(SERVICE_LAYER);
         service.setDetectPoint(detectPoint);
+
+        log.debug("building cilium service: {}", metadata.getServiceName());
         return service;
     }
 
