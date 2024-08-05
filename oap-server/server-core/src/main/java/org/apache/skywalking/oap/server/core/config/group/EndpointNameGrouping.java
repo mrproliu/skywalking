@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
@@ -94,17 +96,21 @@ public class EndpointNameGrouping {
      * The second element is a boolean represented the endpoint name is formatted or not.
      */
     public Tuple2<String, Boolean> format(String serviceName, String endpointName) {
+        log.warn("trying to format endpoint name: {} of service: {}", endpointName, serviceName);
         Tuple2<String, Boolean> formattedName = new Tuple2<>(endpointName, Boolean.FALSE);
         if (endpointGroupingRule4Openapi != null) {
             formattedName = formatByOpenapi(serviceName, endpointName);
+            log.warn("grouping1 endpoint name result: {}, {}", formattedName._1(), formattedName._2());
         }
 
         if (!formattedName._2() && endpointGroupingRule != null) {
             formattedName = formatByCustom(serviceName, endpointName);
+            log.warn("grouping2 endpoint name result: {}, {}", formattedName._1(), formattedName._2());
         }
 
         if (!formattedName._2() && quickUriGroupingRule != null) {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
+            log.warn("grouping3 endpoint name result: {}, {}", formattedName._1(), formattedName._2());
 
             Map<String, Queue<String>> svrHttpUris =
                 cachedHttpUris.computeIfAbsent(serviceName, k -> new ConcurrentHashMap<>());
@@ -119,8 +125,10 @@ public class EndpointNameGrouping {
                         formattedName._1(), k -> new ArrayBlockingQueue<>(10));
                     // Try to push the raw URI as a candidate of formatted name.
                     formattedURIs.offer(endpointName);
+                    log.warn("adding formatted endpoint name: {} of service: {}", formattedName._1(), serviceName);
                 } else {
                     svrHttpUris.computeIfAbsent(endpointName, k -> new ArrayBlockingQueue<>(1));
+                    log.warn("adding unformatted endpoint name: {} of service: {}", endpointName, serviceName);
                 }
             }
         }
@@ -209,11 +217,13 @@ public class EndpointNameGrouping {
                                          if (candidates.size() == 0) {
                                              //unrecognized uri
                                              candidates4UriPatterns.add(new HttpUriRecognition.HTTPUri(uri));
+                                             log.warn("ready to push unrecognized uri: {} from service: {}", uri, serviceName);
                                          } else {
                                              String candidateUri;
                                              while ((candidateUri = candidates.poll()) != null) {
                                                  candidates4UriPatterns.add(
                                                      new HttpUriRecognition.HTTPUri(candidateUri));
+                                                 log.warn("ready to push candidate uri: {}({}) from service: {}", candidateUri, uri, serviceName);
                                              }
                                          }
                                      });
@@ -221,6 +231,7 @@ public class EndpointNameGrouping {
                                      // Reset the cache once the URIs are sent to the recognition server.
                                      httpUris.clear();
                                      httpUriRecognitionSvr.feedRawData(serviceName, candidates4UriPatterns);
+                                     log.warn("push URIs to recognition server for service: {}, urls: {}", serviceName, candidates4UriPatterns.stream().map(HttpUriRecognition.HTTPUri::getName).collect(Collectors.toList()));
                                  });
                              }
                              if (currentExecutionCounter % syncPeriodHttpUriRecognitionPattern == 0) {
@@ -230,6 +241,8 @@ public class EndpointNameGrouping {
                                          service -> {
                                              final List<HttpUriPattern> patterns
                                                  = httpUriRecognitionSvr.fetchAllPatterns(service.getName());
+                                             log.warn("fetch pattern result, service: {}, patterns: {}", service.getName(),
+                                                 patterns.stream().map(HttpUriPattern::getPattern).collect(Collectors.toList()));
                                              if (CollectionUtils.isNotEmpty(patterns)) {
                                                  patterns.forEach(
                                                      p -> quickUriGroupingRule.addRule(
