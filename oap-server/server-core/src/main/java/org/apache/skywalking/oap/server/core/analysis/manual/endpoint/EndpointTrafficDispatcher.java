@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 
+@Slf4j
 public class EndpointTrafficDispatcher implements SourceDispatcher<Endpoint> {
 
     @Override
@@ -31,5 +34,9 @@ public class EndpointTrafficDispatcher implements SourceDispatcher<Endpoint> {
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
         MetricsStreamProcessor.getInstance().in(traffic);
+        log.warn("sending endpoint traffic to metrics stream processor, service: {}, endpoint: {}", source.getServiceId(), source.getName());
+        if (StringUtils.indexOf(source.getName(), "GET:/songs/1") == 0) {
+            log.error("sending error, endpoint name: {}", source.getName(), new Exception());
+        }
     }
 }
