@@ -46,6 +46,7 @@ import com.google.common.cache.LoadingCache;
 import io.vavr.Tuple2;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public class EndpointNameGrouping {
@@ -131,6 +132,9 @@ public class EndpointNameGrouping {
                     log.warn("adding unformatted endpoint name: {} of service: {}", endpointName, serviceName);
                 }
             }
+        }
+        if (StringUtil.isEmpty(endpointName)) {
+            log.warn("found empty endpoint name in service: {}", serviceName, new Exception());
         }
 
         // If there are too many unformatted URIs, we will abandon the unformatted URIs to reduce
