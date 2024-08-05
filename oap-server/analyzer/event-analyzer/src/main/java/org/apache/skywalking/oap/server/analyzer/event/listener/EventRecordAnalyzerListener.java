@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.event.listener;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.event.v3.Source;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -28,10 +29,12 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * EventRecordAnalyzerListener forwards the event data to the persistence layer with the query required conditions.
  */
+@Slf4j
 @RequiredArgsConstructor
 public class EventRecordAnalyzerListener implements EventAnalyzerListener {
     private static final Gson GSON = new Gson();
@@ -56,6 +59,9 @@ public class EventRecordAnalyzerListener implements EventAnalyzerListener {
             event.setService(namingControl.formatServiceName(source.getService()));
             event.setServiceInstance(namingControl.formatInstanceName(source.getServiceInstance()));
             event.setEndpoint(namingControl.formatEndpointName(source.getService(), source.getEndpoint()));
+            if (StringUtil.isEmpty(source.getEndpoint())) {
+                log.warn("found event record contains empty endpoint: {}", e);
+            }
         }
 
         event.setName(e.getName());
