@@ -241,9 +241,9 @@ public class EndpointNameGrouping {
                                          service -> {
                                              final List<HttpUriPattern> patterns
                                                  = httpUriRecognitionSvr.fetchAllPatterns(service.getName());
-                                             log.warn("fetch pattern result, service: {}, patterns: {}", service.getName(),
-                                                 patterns.stream().map(HttpUriPattern::getPattern).collect(Collectors.toList()));
                                              if (CollectionUtils.isNotEmpty(patterns)) {
+                                                 log.warn("fetch pattern result, service: {}, patterns: {}", service.getName(),
+                                                     patterns.stream().map(HttpUriPattern::getPattern).collect(Collectors.toList()));
                                                  patterns.forEach(
                                                      p -> quickUriGroupingRule.addRule(
                                                          service.getName(), p.getPattern()));
