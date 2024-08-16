@@ -29,7 +29,7 @@ public class AsyncQueryUtils {
     private static final Executor EXECUTOR = new ForkJoinPool(
         Runtime.getRuntime().availableProcessors(), defaultForkJoinWorkerThreadFactory, null, true);
 
-    protected static <U> CompletableFuture<U> queryAsync(Callable<U> caller) {
+    public static <U> CompletableFuture<U> queryAsync(Callable<U> caller) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return caller.call();
