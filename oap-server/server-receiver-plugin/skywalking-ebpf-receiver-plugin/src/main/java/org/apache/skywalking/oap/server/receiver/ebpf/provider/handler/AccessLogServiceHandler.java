@@ -113,6 +113,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
         // schedule to print the drop reasons(debug log)
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::printDropReasons, 10, 10, TimeUnit.SECONDS);
+        log.error("test log!!!!!");
     }
 
     @Override
@@ -459,10 +460,10 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     }
 
     protected void printDropReasons() {
-        log.warn("starting print drop reason");
+        log.error("starting print drop reason");
         servicesCounter.keySet().forEach(key -> {
             final AtomicLong count = servicesCounter.remove(key);
-            log.warn("total receive {}, count: {}", key, count.get());
+            log.error("total receive {}, count: {}", key, count.get());
         });
 
         if (dropReasons.isEmpty()) {
@@ -559,7 +560,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 key = this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP;
                 servicesCounter.computeIfAbsent(key,
                     k -> new AtomicLong()).incrementAndGet();
-                log.warn("starting: " + key);
+                log.error("starting: " + key);
             } catch (Exception e) {
                 e.printStackTrace();
             }
