@@ -459,6 +459,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     }
 
     protected void printDropReasons() {
+        log.warn("starting print drop reason");
         servicesCounter.keySet().forEach(key -> {
             final AtomicLong count = servicesCounter.remove(key);
             log.warn("total receive {}, count: {}", key, count.get());
@@ -553,8 +554,15 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             if (ConnectionAddress.AddressCase.IP.equals(connection.getRemote().getAddressCase())) {
                 remoteIP = "(" + connection.getRemote().getIp().getHost() + ":" + connection.getRemote().getIp().getPort() + ")";
             }
-            servicesCounter.computeIfAbsent(this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP,
-                k -> new AtomicLong()).incrementAndGet();
+            final String key;
+            try {
+                key = this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP;
+                servicesCounter.computeIfAbsent(key,
+                    k -> new AtomicLong()).incrementAndGet();
+                log.warn("starting: " + key);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, ConnectionAddress address) {
