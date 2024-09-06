@@ -470,7 +470,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             totalProtocol.addAndGet(count._2.get());
         });
         log.error("total receive count: kernel: {}, protocol: {}, total: {}", totalKernel.get(), totalProtocol.get(),
-            totalKernel.get()+totalProtocol.get());
+            totalKernel.get() + totalProtocol.get());
 
         if (dropReasons.isEmpty()) {
             return;
