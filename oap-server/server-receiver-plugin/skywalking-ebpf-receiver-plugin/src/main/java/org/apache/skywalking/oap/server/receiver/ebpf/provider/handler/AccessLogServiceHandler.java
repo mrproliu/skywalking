@@ -92,6 +92,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     private final HistogramMetrics processHistogram;
     private final CounterMetrics dropCounter;
     private final ConcurrentHashMap<String, DropDataReason> dropReasons = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AtomicLong> servicesCounter = new ConcurrentHashMap<>();
 
     public AccessLogServiceHandler(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -458,6 +459,11 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     }
 
     protected void printDropReasons() {
+        servicesCounter.keySet().forEach(key -> {
+            final AtomicLong count = servicesCounter.remove(key);
+            log.warn("total receive {}, count: {}", key, count.get());
+        });
+
         if (dropReasons.isEmpty()) {
             return;
         }
@@ -543,6 +549,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 (Objects.equals(this.local, buildUnknownAddress()) || Objects.equals(this.remote, buildUnknownAddress()))) {
                 log.debug("found unknown connection: {}", connection);
             }
+            String remoteIP = "";
+            if (ConnectionAddress.AddressCase.IP.equals(connection.getRemote().getAddressCase())) {
+                remoteIP = "(" + connection.getRemote().getIp().getHost() + ":" + connection.getRemote().getIp().getPort() + ")";
+            }
+            servicesCounter.computeIfAbsent(this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP,
+                (key) -> new AtomicLong()).incrementAndGet();
         }
 
         private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, ConnectionAddress address) {
