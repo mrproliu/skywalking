@@ -113,7 +113,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
         // schedule to print the drop reasons(debug log)
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::printDropReasons, 10, 10, TimeUnit.SECONDS);
-        log.error("test log!!!!!");
     }
 
     @Override
@@ -560,7 +559,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 key = this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP;
                 servicesCounter.computeIfAbsent(key,
                     k -> new AtomicLong()).incrementAndGet();
-                log.error("starting: " + key);
             } catch (Exception e) {
                 e.printStackTrace();
             }
