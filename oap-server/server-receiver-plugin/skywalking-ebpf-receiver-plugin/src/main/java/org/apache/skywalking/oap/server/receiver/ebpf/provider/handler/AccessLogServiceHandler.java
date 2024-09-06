@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.ebpf.provider.handler;
 
 import io.grpc.stub.StreamObserver;
+import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +93,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     private final HistogramMetrics processHistogram;
     private final CounterMetrics dropCounter;
     private final ConcurrentHashMap<String, DropDataReason> dropReasons = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, AtomicLong> servicesCounter = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Tuple2<AtomicLong, AtomicLong>> servicesCounter = new ConcurrentHashMap<>();
 
     public AccessLogServiceHandler(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -131,7 +132,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                         node = new NodeInfo(logMessage.getNode());
                     }
                     if (logMessage.hasConnection()) {
-                        connection = new ConnectionInfo(namingControl, node, logMessage.getConnection());
+                        connection = new ConnectionInfo(namingControl, node, logMessage.getConnection(), logMessage);
                     }
 
                     if (log.isDebugEnabled()) {
@@ -461,8 +462,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     protected void printDropReasons() {
         log.error("starting print drop reason");
         servicesCounter.keySet().forEach(key -> {
-            final AtomicLong count = servicesCounter.remove(key);
-            log.error("total receive {}, count: {}", key, count.get());
+            final Tuple2<AtomicLong, AtomicLong> count = servicesCounter.remove(key);
+            log.error("total receive {}, kernel log: {}, http log: {}", key, count._1.get(), count._2.get());
         });
 
         if (dropReasons.isEmpty()) {
@@ -536,7 +537,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         @Getter
         private final boolean valid;
 
-        public ConnectionInfo(NamingControl namingControl, NodeInfo nodeInfo, AccessLogConnection connection) {
+        public ConnectionInfo(NamingControl namingControl, NodeInfo nodeInfo, AccessLogConnection connection, EBPFAccessLogMessage logMessage) {
             this.originalConnection = connection;
             this.namingControl = namingControl;
             this.local = buildAddress(nodeInfo, connection.getLocal());
@@ -555,12 +556,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 remoteIP = "(" + connection.getRemote().getIp().getHost() + ":" + connection.getRemote().getIp().getPort() + ")";
             }
             final String key;
-            try {
-                key = this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP;
-                servicesCounter.computeIfAbsent(key,
-                    k -> new AtomicLong()).incrementAndGet();
-            } catch (Exception e) {
-                e.printStackTrace();
+            key = this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP;
+            final Tuple2<AtomicLong, AtomicLong> data = servicesCounter.computeIfAbsent(key,
+                k -> Tuple.of(new AtomicLong(), new AtomicLong()));
+            data._1.addAndGet(logMessage.getKernelLogsCount());
+            if (logMessage.hasProtocolLog()) {
+                data._2.incrementAndGet();
             }
         }
 
