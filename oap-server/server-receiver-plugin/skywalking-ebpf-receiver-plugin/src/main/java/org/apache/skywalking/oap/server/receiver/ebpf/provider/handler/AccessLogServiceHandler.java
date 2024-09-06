@@ -461,10 +461,13 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
     protected void printDropReasons() {
         log.error("starting print drop reason");
+        AtomicLong totalCount = new AtomicLong();
         servicesCounter.keySet().forEach(key -> {
             final Tuple2<AtomicLong, AtomicLong> count = servicesCounter.remove(key);
             log.error("total receive {}, kernel log: {}, http log: {}", key, count._1.get(), count._2.get());
+            totalCount.addAndGet(count._1.get() + count._2.get());
         });
+        log.error("total receive count: {}", totalCount.get());
 
         if (dropReasons.isEmpty()) {
             return;
