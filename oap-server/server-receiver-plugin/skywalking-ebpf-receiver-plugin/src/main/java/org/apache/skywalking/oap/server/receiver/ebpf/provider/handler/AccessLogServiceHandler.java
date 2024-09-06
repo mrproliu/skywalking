@@ -554,7 +554,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 remoteIP = "(" + connection.getRemote().getIp().getHost() + ":" + connection.getRemote().getIp().getPort() + ")";
             }
             servicesCounter.computeIfAbsent(this.local.getServiceName() + ":" + this.local.getPodName() + "->" + this.remote.getServiceName() + ":" + this.remote.getPodName() + remoteIP,
-                (key) -> new AtomicLong()).incrementAndGet();
+                k -> new AtomicLong()).incrementAndGet();
         }
 
         private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, ConnectionAddress address) {
