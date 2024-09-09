@@ -142,7 +142,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                                 logMessage);
                     }
 
-                    if (connection == null || !connection.isValid()) {
+                    if (connection == null || !connection.isValid() || DetectPoint.client.equals(connection.role)) {
                         dropCounter.inc(logMessage.getKernelLogsCount() + (logMessage.hasProtocolLog() ? 1 : 0));
                         return;
                     }
