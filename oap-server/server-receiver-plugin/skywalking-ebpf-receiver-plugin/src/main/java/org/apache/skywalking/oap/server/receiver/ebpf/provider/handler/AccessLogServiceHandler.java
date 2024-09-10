@@ -142,7 +142,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                                 logMessage);
                     }
 
-                    if (connection == null || !connection.isValid() || DetectPoint.client.equals(connection.role)) {
+                    if (connection == null || !connection.isValid()) {
                         dropCounter.inc(logMessage.getKernelLogsCount() + (logMessage.hasProtocolLog() ? 1 : 0));
                         return;
                     }
@@ -500,6 +500,10 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     }
 
     protected KubernetesProcessAddress buildKubernetesAddressByIP(NodeInfo nodeInfo, IPAddress ipAddress) {
+        final ObjectID service = K8sInfoRegistry.getInstance().findServiceByIP(ipAddress.getHost());
+        if (service != ObjectID.EMPTY) {
+            return buildRemoteAddress(nodeInfo, service, null);
+        }
         final ObjectID pod = K8sInfoRegistry.getInstance().findPodByIP(ipAddress.getHost());
         if (pod == ObjectID.EMPTY) {
             // if cannot found the address, then return the unknown address
@@ -527,7 +531,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
         return KubernetesProcessAddress.newBuilder()
             .setServiceName(serviceName)
-            .setPodName(pod.name())
+            .setPodName(pod == null ? null : pod.name())
             .build();
     }
 
@@ -611,7 +615,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SServiceInstance toServiceInstance() {
-            if (Objects.equals(local, buildUnknownAddress())) {
+            if (Objects.equals(local, buildUnknownAddress()) || StringUtil.isEmpty(local.getPodName())) {
                 return null;
             }
             final K8SServiceInstance serviceInstance = new K8SServiceInstance();
@@ -645,6 +649,9 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SServiceInstanceRelation toServiceInstanceRelation() {
+            if (StringUtil.isEmpty(local.getPodName()) || StringUtil.isEmpty(remote.getPodName())) {
+                return null;
+            }
             final Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> tuple = convertSourceAndDestAddress();
             final K8SServiceInstanceRelation serviceInstanceRelation = new K8SServiceInstanceRelation();
             final String sourceServiceName = buildServiceNameByAddress(nodeInfo, tuple._1);
