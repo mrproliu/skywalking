@@ -531,7 +531,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
         return KubernetesProcessAddress.newBuilder()
             .setServiceName(serviceName)
-            .setPodName(pod == null ? null : pod.name())
+            .setPodName(pod == null ? "" : pod.name())
             .build();
     }
 
