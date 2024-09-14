@@ -63,6 +63,7 @@
 * Support service level metrics aggregate when missing pod context in eBPF Access Log Receiver.
 * Fix query `getGlobalTopology` throw exception when didn't find any services by the given Layer.
 * Fix the previous analysis result missing in the ALS `k8s-mesh` analyzer.
+* Support to analysis the ztunnel mapped IP address in eBPF Access Log Receiver.
 
 #### UI
 
