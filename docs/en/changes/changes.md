@@ -12,6 +12,7 @@
 
 
 #### UI
+* Support the endpoint list widget query with duration parameter.
 
 
 #### Documentation
