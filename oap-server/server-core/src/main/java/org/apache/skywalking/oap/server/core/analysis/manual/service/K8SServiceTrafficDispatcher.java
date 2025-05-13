@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.K8SService;
 
+@Slf4j
 public class K8SServiceTrafficDispatcher implements SourceDispatcher<K8SService> {
     @Override
     public void dispatch(K8SService source) {
@@ -30,5 +32,6 @@ public class K8SServiceTrafficDispatcher implements SourceDispatcher<K8SService>
         traffic.setName(source.getName());
         traffic.setLayer(source.getLayer());
         MetricsStreamProcessor.getInstance().in(traffic);
+        log.warn("K8SServiceTrafficDispatcher dispatch traffic: {}, {}", source.getName(), source.getLayer());
     }
 }

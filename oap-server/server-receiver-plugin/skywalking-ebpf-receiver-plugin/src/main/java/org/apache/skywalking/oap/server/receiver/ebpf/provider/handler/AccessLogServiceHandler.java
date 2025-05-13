@@ -792,6 +792,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         K8SService remoteService = new K8SService();
         remoteService.setLayer(layer);
         remoteService.setName(relation.getDestServiceName());
+        log.warn("generate the mesh layer service local service: {}, remote service: {}",
+            relation.getSourceServiceName(), relation.getDestServiceName());
         return Arrays.asList(localService, remoteService);
     }
 }
