@@ -32,6 +32,7 @@ public class ServiceTrafficDispatcher implements SourceDispatcher<Service> {
         traffic.setName(source.getName());
         traffic.setLayer(source.getLayer());
         MetricsStreamProcessor.getInstance().in(traffic);
-        log.warn("generate service traffic for {} with layer {}", source.getName(), source.getLayer());
+        log.warn("generate service traffic for {} with layer {}, time: {}", source.getName(), source.getLayer(),
+            source.getTimeBucket());
     }
 }
