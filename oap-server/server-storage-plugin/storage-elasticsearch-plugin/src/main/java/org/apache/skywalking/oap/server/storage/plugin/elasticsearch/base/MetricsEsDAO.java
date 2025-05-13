@@ -30,6 +30,7 @@ import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
@@ -104,6 +105,11 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
+        if (metrics instanceof ServiceTraffic) {
+            ServiceTraffic serviceTraffic = (ServiceTraffic) metrics;
+            log.debug("Service traffic {}({}) added into ES insert write buffer: {}", serviceTraffic.getName(), serviceTraffic.getLayer(),
+                id);
+        }
         return new MetricIndexRequestWrapper(getClient().prepareInsert(modelName, id, builder), callback);
     }
 
@@ -115,6 +121,11 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
+        if (metrics instanceof ServiceTraffic) {
+            ServiceTraffic serviceTraffic = (ServiceTraffic) metrics;
+            log.debug("Service traffic {}({}) added into ES update write buffer: {}", serviceTraffic.getName(), serviceTraffic.getLayer(),
+                id);
+        }
         return new MetricIndexUpdateWrapper(getClient().prepareUpdate(modelName, id, builder), callback);
     }
 

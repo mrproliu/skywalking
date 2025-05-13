@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 
@@ -31,6 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageID;
  *
  * Concurrency {@link #accept(Metrics)}s and {@link #read()} while {@link #accept(Metrics)} are both not recommended.
  */
+@Slf4j
 public class MergableBufferedData<METRICS extends Metrics> implements BufferedData<METRICS> {
     private Map<StorageID, METRICS> buffer;
 
@@ -49,10 +53,21 @@ public class MergableBufferedData<METRICS extends Metrics> implements BufferedDa
     public void accept(final METRICS data) {
         final StorageID id = data.id();
         final METRICS existed = buffer.get(id);
+        boolean exist = false;
         if (existed == null) {
             buffer.put(id, data);
+            exist = false;
         } else {
             existed.combine(data);
+            exist = true;
+        }
+        if (data instanceof ServiceTraffic) {
+            ServiceTraffic serviceTraffic = (ServiceTraffic) data;
+            if (exist) {
+                log.warn("Service traffic {}({}) already exist, merge with {}", serviceTraffic.getName(), serviceTraffic.getLayer(), id);
+            } else {
+                log.warn("Service traffic {}({}) added into buffer", serviceTraffic.getName(), serviceTraffic.getLayer());
+            }
         }
     }
 

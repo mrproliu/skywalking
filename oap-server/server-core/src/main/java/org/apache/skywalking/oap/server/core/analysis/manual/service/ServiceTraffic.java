@@ -187,7 +187,8 @@ public class ServiceTraffic extends Metrics {
 
     @Override
     public void calculate() {
-
+        log.warn("calculate service traffic {}:{}(serviceid:{},id:{})",
+            this.getName(), this.getLayer(), this.getServiceId(), this.id().build());
     }
 
     @Override
