@@ -790,11 +790,11 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         Service localService = new Service();
         localService.setLayer(layer);
         localService.setName(relation.getSourceServiceName());
-        localService.setTimeBucket(relation.getTimeBucket());
+        localService.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         Service remoteService = new Service();
         remoteService.setLayer(layer);
         remoteService.setName(relation.getDestServiceName());
-        remoteService.setTimeBucket(relation.getTimeBucket());
+        remoteService.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         log.warn("generate the mesh layer service local service: {}, remote service: {}",
             relation.getSourceServiceName(), relation.getDestServiceName());
         return Arrays.asList(localService, remoteService);
