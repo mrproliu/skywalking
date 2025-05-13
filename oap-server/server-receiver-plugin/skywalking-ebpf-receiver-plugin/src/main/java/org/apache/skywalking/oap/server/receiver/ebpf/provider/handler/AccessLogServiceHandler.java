@@ -53,6 +53,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.K8SEndpoint;
 import org.apache.skywalking.oap.server.core.source.K8SMetrics;
@@ -60,6 +61,7 @@ import org.apache.skywalking.oap.server.core.source.K8SService;
 import org.apache.skywalking.oap.server.core.source.K8SServiceInstance;
 import org.apache.skywalking.oap.server.core.source.K8SServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.K8SServiceRelation;
+import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -782,16 +784,18 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         return TimeUnit.NANOSECONDS.toMillis(latency);
     }
 
-    protected List<K8SService> buildBaseServiceFromRelation(K8SServiceRelation relation, Layer layer) {
+    protected List<Service> buildBaseServiceFromRelation(K8SServiceRelation relation, Layer layer) {
         if (relation == null) {
             return Collections.emptyList();
         }
-        K8SService localService = new K8SService();
+        Service localService = new Service();
         localService.setLayer(layer);
         localService.setName(relation.getSourceServiceName());
-        K8SService remoteService = new K8SService();
+        localService.setTimeBucket(relation.getTimeBucket());
+        Service remoteService = new Service();
         remoteService.setLayer(layer);
         remoteService.setName(relation.getDestServiceName());
+        remoteService.setTimeBucket(relation.getTimeBucket());
         log.warn("generate the mesh layer service local service: {}, remote service: {}",
             relation.getSourceServiceName(), relation.getDestServiceName());
         return Arrays.asList(localService, remoteService);
