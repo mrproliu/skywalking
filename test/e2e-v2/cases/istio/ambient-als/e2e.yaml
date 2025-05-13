@@ -46,7 +46,11 @@ setup:
           kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0-rc.1/standard-install.yaml
         kubectl label namespace default istio.io/dataplane-mode=ambient
     - name: install waypoint
-      command: istioctl waypoint apply --name simple-http-waypoint
+      command: istioctl waypoint apply --name simple-http-waypoint && sleep 1
+      wait:
+        - namespace: default
+          resource: deployments/simple-http-waypoint
+          for: condition=available
     - name: Install helm
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
     - name: Install SkyWalking
