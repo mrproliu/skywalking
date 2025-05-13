@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.service;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -49,6 +50,7 @@ import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
     "layer"
 })
 @BanyanDB.IndexMode
+@Slf4j
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
@@ -107,6 +109,7 @@ public class ServiceTraffic extends Metrics {
         } else {
             id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
+        log.warn("generate service traffic id for {} with layer {}", name, layer.value());
         return new StorageID().appendMutant(new String[] {
             NAME,
             LAYER

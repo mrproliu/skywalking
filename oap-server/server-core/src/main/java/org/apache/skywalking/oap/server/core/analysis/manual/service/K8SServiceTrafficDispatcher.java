@@ -32,6 +32,5 @@ public class K8SServiceTrafficDispatcher implements SourceDispatcher<K8SService>
         traffic.setName(source.getName());
         traffic.setLayer(source.getLayer());
         MetricsStreamProcessor.getInstance().in(traffic);
-        log.warn("K8SServiceTrafficDispatcher dispatch traffic: {}, {}", source.getName(), source.getLayer());
     }
 }
