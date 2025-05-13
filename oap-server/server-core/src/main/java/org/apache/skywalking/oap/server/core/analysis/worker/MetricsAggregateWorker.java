@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
@@ -127,6 +128,11 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         if (currentTime - lastSendTime > l1FlushPeriod) {
             mergeDataCache.read().forEach(
                 data -> {
+                    if (data instanceof ServiceTraffic) {
+                        log.warn("Service traffic {}({}) added into next worker buffer {}", ((ServiceTraffic) data).getName(), ((ServiceTraffic) data).getLayer(),
+                            nextWorker);
+                        return;
+                    }
                     nextWorker.in(data);
                 }
             );

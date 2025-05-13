@@ -74,7 +74,12 @@ public class MergableBufferedData<METRICS extends Metrics> implements BufferedDa
     @Override
     public List<METRICS> read() {
         try {
-            return buffer.values().stream().collect(Collectors.toList());
+            final List<METRICS> collect = buffer.values().stream().collect(Collectors.toList());
+            if (collect.size() > 0 && collect.get(0) instanceof ServiceTraffic) {
+                log.warn("read to read buffer, services: {}",
+                    collect.stream().map(m -> ((ServiceTraffic) m).getName() + "(" + ((ServiceTraffic) m).getLayer() + ")").collect(Collectors.toList()));
+            }
+            return collect;
         } finally {
             buffer.clear();
         }

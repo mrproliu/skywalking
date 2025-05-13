@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.status.BootingStatus;
@@ -211,6 +212,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
             return Collections.emptyList();
+        }
+
+        if (model.getName().equals(ServiceTraffic.INDEX_NAME)) {
+            log.warn("ready to flush {} metrics to storage, model: {}, size: {}, services: {}",
+                model.getName(), lastCollection.size(), lastCollection.size(), lastCollection.stream()
+                    .map(s -> ((ServiceTraffic)s).getName() + "(" + ((ServiceTraffic) s).getLayer() + ")").collect(Collectors.toList()));
         }
 
         /*
