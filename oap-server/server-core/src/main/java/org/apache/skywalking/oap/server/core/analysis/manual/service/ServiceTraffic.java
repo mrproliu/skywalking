@@ -178,6 +178,10 @@ public class ServiceTraffic extends Metrics {
 
     @Override
     public boolean combine(final Metrics metrics) {
+        log.warn("ready to combine service traffic {}:{}(serviceid:{},id:{}) with {}:{}(serviceid:{},id:{})",
+            this.getName(), this.getLayer(), this.getServiceId(), this.id().build(),
+            ((ServiceTraffic) metrics).getName(), ((ServiceTraffic) metrics).getLayer(),
+            ((ServiceTraffic) metrics).getServiceId(), metrics.id().build());
         return true;
     }
 
