@@ -150,6 +150,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                         return;
                     }
 
+                    prepareForDispatch(node, connection, logMessage);
+
                     for (AccessLogKernelLog accessLogKernelLog : logMessage.getKernelLogsList()) {
                         inCounter.inc();
                         dispatchKernelLog(node, connection, accessLogKernelLog);
@@ -176,6 +178,15 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    protected void prepareForDispatch(NodeInfo node, ConnectionInfo connection, EBPFAccessLogMessage logMessage) {
+        // if the connection is communicated with ztunnel, then needs to generate the mesh layer service
+        if (connection.getOriginalConnection().hasAttachment() && connection.getOriginalConnection().getAttachment().hasZTunnel()) {
+            final K8SServiceRelation service = connection.toServiceRelation();
+            buildBaseServiceFromRelation(service, Layer.MESH)
+                .forEach(sourceReceiver::receive);
+        }
     }
 
     protected List<K8SMetrics> buildKernelLogMetrics(NodeInfo node, ConnectionInfo connection, AccessLogKernelLog kernelLog) {
@@ -725,6 +736,10 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             }
         }
 
+        public AccessLogConnection getOriginal() {
+            return originalConnection;
+        }
+
         public String toString() {
             return String.format("local: %s, remote: %s, role: %s, tlsMode: %s, protocolType: %s, valid: %b",
                 buildConnectionAddressString(originalConnection.getLocal()),
@@ -765,5 +780,18 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
     protected long convertNsToMs(long latency) {
         return TimeUnit.NANOSECONDS.toMillis(latency);
+    }
+
+    protected List<K8SService> buildBaseServiceFromRelation(K8SServiceRelation relation, Layer layer) {
+        if (relation == null) {
+            return Collections.emptyList();
+        }
+        K8SService localService = new K8SService();
+        localService.setLayer(layer);
+        localService.setName(relation.getSourceServiceName());
+        K8SService remoteService = new K8SService();
+        remoteService.setLayer(layer);
+        remoteService.setName(relation.getDestServiceName());
+        return Arrays.asList(localService, remoteService);
     }
 }
