@@ -107,7 +107,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
         if (metrics instanceof ServiceTraffic) {
             ServiceTraffic serviceTraffic = (ServiceTraffic) metrics;
-            log.debug("Service traffic {}({}) added into ES insert write buffer: {}", serviceTraffic.getName(), serviceTraffic.getLayer(),
+            log.warn("Service traffic {}({}) added into ES insert write buffer: {}", serviceTraffic.getName(), serviceTraffic.getLayer(),
                 id);
         }
         return new MetricIndexRequestWrapper(getClient().prepareInsert(modelName, id, builder), callback);
@@ -123,7 +123,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
         if (metrics instanceof ServiceTraffic) {
             ServiceTraffic serviceTraffic = (ServiceTraffic) metrics;
-            log.debug("Service traffic {}({}) added into ES update write buffer: {}", serviceTraffic.getName(), serviceTraffic.getLayer(),
+            log.warn("Service traffic {}({}) added into ES update write buffer: {}", serviceTraffic.getName(), serviceTraffic.getLayer(),
                 id);
         }
         return new MetricIndexUpdateWrapper(getClient().prepareUpdate(modelName, id, builder), callback);

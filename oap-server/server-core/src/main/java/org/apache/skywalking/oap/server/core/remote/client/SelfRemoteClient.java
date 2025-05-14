@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.server.core.remote.client;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
+import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -76,7 +78,12 @@ public class SelfRemoteClient implements RemoteClient {
     @Override
     public void push(String nextWorkerName, StreamData streamData) {
         try {
-            workerInstanceGetter.get(nextWorkerName).getWorker().in(streamData);
+            final AbstractWorker worker = workerInstanceGetter.get(nextWorkerName).getWorker();
+            worker.in(streamData);
+            if (streamData instanceof ServiceTraffic) {
+                log.warn("Service traffic {}({}) pushed to self remote client, worker: {}",
+                    ((ServiceTraffic) streamData).getName(), ((ServiceTraffic) streamData).getLayer(), worker);
+            }
             remoteOutCounter.inc();
         } catch (Throwable t) {
             remoteOutErrorCounter.inc();
