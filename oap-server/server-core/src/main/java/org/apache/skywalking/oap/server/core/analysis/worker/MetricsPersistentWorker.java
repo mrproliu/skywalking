@@ -217,7 +217,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         if (model.getName().equals(ServiceTraffic.INDEX_NAME)) {
             log.warn("ready to flush {} metrics to storage, model: {}, size: {}, services: {}",
                 model.getName(), lastCollection.size(), lastCollection.size(), lastCollection.stream()
-                    .map(s -> ((ServiceTraffic)s).getName() + "(" + ((ServiceTraffic) s).getLayer() + ")").collect(Collectors.toList()));
+                    .map(s -> ((ServiceTraffic) s).getName() + "(" + ((ServiceTraffic) s).getLayer() + ")")
+                    .collect(Collectors.toList()));
         }
 
         /*
